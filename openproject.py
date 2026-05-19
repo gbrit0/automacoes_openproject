@@ -31,40 +31,6 @@ def obter_lockversion_pacote_de_trabalho(id__pacote_de_trabalho):
     
     return response.json().get("lockVersion")
 
-def add_project_group(project_id, user_id, role_id):
-    """
-    Adiciona um usuário a um projeto no OpenProject com um cargo específico.
-    
-    Parâmetros:
-    - project_id (int): O ID do projeto.
-    - user_id (int): O ID do usuário (ex: 6 para Pedro, 3 para Gabriel, 10 para IA).
-    - role_id (int): O ID do cargo a ser atribuído (ex: 3, 4, 8 - depende da sua configuração).
-    """
-    url = f"{OPENPROJECT_API_URL}/api/v3/memberships"
-    headers = {"Content-Type": "application/json"}
-    
-    payload = {
-        "_links": {
-            "project": {"href": f"/api/v3/projects/{project_id}"},
-            "principal": {"href": f"/api/v3/groups/{user_id}"},
-            "roles": [
-                {"href": f"/api/v3/roles/{role_id}"}
-            ]
-        }
-    }
-
-    try:
-        response = requests.post(url, headers=headers, json=payload, auth=('apikey', OPENPROJECT_API_KEY))
-        response.raise_for_status()
-        print(f"Usuário ID {user_id} adicionado ao projeto {project_id} com sucesso!")
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Erro ao adicionar usuário {user_id}: {e}")
-        if e.response is not None and e.response.text:
-            print(f"Detalhes: {e.response.text}")
-        return None
-
-
 def add_responsible_to_work_package(work_package_id, user_href):
     """
     Adiciona um usuário como responsável por um pacote de trabalho específico.
@@ -94,12 +60,11 @@ def add_responsible_to_work_package(work_package_id, user_href):
         response.raise_for_status()
     
         print(f"Usuário ID {user_href} adicionado como responsável ao pacote de trabalho {work_package_id} com sucesso!")
-    
-        return response.json()
+
+        return JSONResponse(content=f"Usuário ID {user_href} adicionado como responsável ao pacote de trabalho {work_package_id} com sucesso!", status_code=response.status_code)
     
     except requests.exceptions.RequestException as e:
         print(f"Erro ao adicionar responsável ao pacote de trabalho {work_package_id}: {e}")
-
 
 @app.api_route('/hello', methods=["POST"])
 async def hello():
@@ -139,8 +104,6 @@ async def atribuicao_gestor(request: Request):
 
     memberships_data = memberships.json()
     
-    # print(memberships_data)
-    
     elements = memberships_data.get("_embedded", {}).get("elements", [])
     
     admin_href = None
@@ -158,8 +121,8 @@ async def atribuicao_gestor(request: Request):
     print(f"Nome do administrador encontrado: {admin_name}")
     
     json_response = add_responsible_to_work_package(work_package__id, admin_href)
-       
-    return JSONResponse(content={"message": "Gestor atribuído com sucesso!"}, status_code=200)
+           
+    return json_response
 
 if __name__ == '__main__':
     uvicorn.run("openproject:app", host="172.49.49.8", port=5678, reload=True)
