@@ -66,10 +66,10 @@ def add_responsible_to_work_package(work_package_id, user_href):
     except requests.exceptions.RequestException as e:
         print(f"Erro ao adicionar responsável ao pacote de trabalho {work_package_id}: {e}")
 
-@app.api_route('/hello', methods=["POST"])
+@app.api_route('/hello', methods=["POST", "GET"])
 async def hello():
     print("Hello, OpenProject!")
-    return JSONResponse(content={"message": "Hello, OpenProject!"}, status_code=200)
+    return JSONResponse(content="<h1>Hello, OpenProject!</h1>", status_code=200)
 
 
 @app.api_route("/work_package_update", methods=['POST'])
@@ -125,4 +125,4 @@ async def atribuicao_gestor(request: Request):
     return json_response
 
 if __name__ == '__main__':
-    uvicorn.run("openproject:app", host="172.49.49.8", port=5678, reload=True)
+    uvicorn.run("openproject:app", host="0.0.0.0", port=30200, reload=True)
