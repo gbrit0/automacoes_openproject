@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from dotenv import load_dotenv
 
@@ -9,8 +10,13 @@ import uvicorn
 
 load_dotenv(override=True)
 
+WATCHLIST_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'watchlist.json')
+
 OPENPROJECT_API_URL = os.getenv('OPENPROJECT_API_URL')
 OPENPROJECT_API_KEY = os.getenv('OPENPROJECT_API_KEY')
+
+if not OPENPROJECT_API_URL or not OPENPROJECT_API_KEY:
+    raise ValueError("As variáveis de ambiente OPENPROJECT_API_URL e OPENPROJECT_API_KEY devem ser definidas.")
 
 app = FastAPI()
 
@@ -66,6 +72,93 @@ def add_responsible_to_work_package(work_package_id, user_href):
     except requests.exceptions.RequestException as e:
         print(f"Erro ao adicionar responsável ao pacote de trabalho {work_package_id}: {e}")
 
+def add_meeting_to_watchlist(work_package_id) -> bool:
+    """
+    Adiciona o ID de um pacote de trabalho (work package) do OpenProject a uma watchlist salva como JSON.
+    
+    Args:
+        work_package_id (int or str): O ID do pacote de trabalho.
+        
+    Returns:
+        bool: True se adicionado com sucesso (ou se já existia), False em caso de erro.
+    """
+    try:
+        # Validação estrita do ID: deve ser um inteiro positivo
+        try:
+            wp_id = int(work_package_id)
+            if wp_id <= 0:
+                raise ValueError("O ID deve ser um número inteiro positivo.")
+        except (ValueError, TypeError) as ve:
+            print(f"ID inválido para watchlist: {work_package_id}. Erro: {ve}")
+            return False
+
+        watchlist = []
+        if os.path.exists(WATCHLIST_FILE):
+            try:
+                with open(WATCHLIST_FILE, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if content:
+                        watchlist = json.loads(content)
+                        if not isinstance(watchlist, list):
+                            print("Formato inválido encontrado na watchlist. Reiniciando lista.")
+                            watchlist = []
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Erro ao ler a watchlist ({e}). Criando uma nova lista.")
+                watchlist = []
+
+        if wp_id not in watchlist:
+            watchlist.append(wp_id)
+            # Ordena a lista para manter organizada
+            watchlist.sort()
+            with open(WATCHLIST_FILE, 'w', encoding='utf-8') as f:
+                json.dump(watchlist, f, indent=4, ensure_ascii=False)
+            print(f"ID {wp_id} adicionado à watchlist com sucesso.")
+        else:
+            print(f"ID {wp_id} já está na watchlist.")
+
+        return True
+    except Exception as e:
+        print(f"Erro inesperado ao gerenciar a watchlist: {e}")
+        return False
+
+def get_meeting_by_work_package_id(work_package_id):
+    """
+    Busca reuniões associadas a um pacote de trabalho específico.
+    
+    Args:
+        work_package_id (int or str): O ID do pacote de trabalho (work package).
+        
+    Returns:
+        dict: Resposta da API do OpenProject com as reuniões.
+    """
+    url = f"{OPENPROJECT_API_URL}/api/v3/meetings/"
+    
+    payload = {
+        "_embedded": {
+            "elements": {
+                "_type": "Meeting",
+                "_links": {
+                    "work_package": {
+                        "id": work_package_id
+                    }
+                }
+            }
+        }
+    }
+    # [{ "status_id": { "operator": "o", "values": null }}]
+    
+    try:
+        response = requests.get(
+            url,
+            # json=payload,
+            auth=('apikey', OPENPROJECT_API_KEY)
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao buscar reuniões associadas ao pacote de trabalho {work_package_id}: {e}")
+        raise
+
 @app.api_route('/hello', methods=["POST", "GET"])
 async def hello():
     print("Hello, OpenProject!")
@@ -90,6 +183,19 @@ async def work_package_update(request: Request):
 @app.api_route('/atribuicao_gestor', methods=['POST'])
 async def atribuicao_gestor(request: Request):
     data = await request.json()
+    if data is None:
+        return JSONResponse(content={"message": "Nenhum dado recebido."}, status_code=400)
+
+    
+    if data.get("work_package").get("_links").get("type").get("title"):
+        
+        work_package_type = data.get("work_package").get("_links").get("type").get("title")
+
+        if work_package_type == "Reunião": 
+        
+            work_package_id = data.get("work_package").get("id")
+        
+            add_meeting_to_watchlist(work_package_id)
     
     if data.get("work_package").get("_links").get("responsible").get("href") is not None:
         return JSONResponse(content={"message": "O pacote de trabalho já possui um responsável atribuído."}, status_code=200)
@@ -125,4 +231,4 @@ async def atribuicao_gestor(request: Request):
     return json_response
 
 if __name__ == '__main__':
-    uvicorn.run("openproject:app", host="0.0.0.0", port=30200, reload=True)
+    uvicorn.run("openproject:app", host="0.0.0.0", port=30300, reload=True)
