@@ -9,3 +9,6 @@ Solicitação feita no projeto de melhorias do OpenProject para atribuição aut
 A solução está baseada no uso de grupos em cada projeto, buscando o Administrador do Projeto considerando-o como Gestor da equipe e atribuindo seu id à relação de responsável.
 
 * Endpoint /atribuicao_gestor
+
+## Lançamento de Horas de Reunião
+

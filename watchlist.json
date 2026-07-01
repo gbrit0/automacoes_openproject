@@ -1,5 +1,29 @@
-[
-    1162,
-    1163,
-    1164
-]
+{
+    "abertos": {
+        "3": "Aberta",
+        "8": "Em Andamento",
+        "11": "Aberta",
+        "13": "Aberta",
+        "14": "Aberta",
+        "15": "Aberta",
+        "16": "Aberta",
+        "17": "Aberta",
+        "18": "Aberta",
+        "19": "Aberta",
+        "20": "Aberta",
+        "9999": "Em Andamento"
+    },
+    "fechados": {
+        "nao_processados": {},
+        "processados": {
+            "4": "Fechada",
+            "5": "Fechada",
+            "6": "Fechada",
+            "7": "Fechada",
+            "9": "Fechada",
+            "10": "Fechada",
+            "12": "Fechada",
+            "21": "Fechada"
+        }
+    }
+}

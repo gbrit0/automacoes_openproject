@@ -1,0 +1,72 @@
+# meetings
+
+id |     title     | author_id | project_id | location |       start_time       | duration |          created_at           |          updated_at           | state | lock_version | recurring_meeting_id | template |                               uid                               | notify 
+----+---------------+-----------+------------+----------+------------------------+----------+-------------------------------+-------------------------------+-------+--------------+----------------------+----------+-----------------------------------------------------------------+--------
+  3 | Reunião Teste |         4 |          4 |          | 2025-11-15 13:00:00+00 |        1 | 2025-11-14 13:50:46.435032+00 | 2025-11-14 13:50:46.435032+00 |     0 |            0 |                      | f        | d9d0bca1-5d1e-4c80-a9e0-09ebb9012f71@brg.datasetsolucoes.com.br | t
+
+
+# meeting_agenda_items
+
+ id | meeting_id | author_id | title | notes | position | duration_in_minutes |         created_at         |         updated_at         | work_package_id | item_type | lock_version | presenter_id | meeting_section_id 
+----+------------+-----------+-------+-------+----------+---------------------+----------------------------+----------------------------+-----------------+-----------+--------------+--------------+--------------------
+ 61 |         14 |         4 |       |       |        1 |                     | 2026-06-24 19:25:08.379197 | 2026-06-24 19:25:08.379197 |            1161 |         1 |            0 |            4 |                 47
+
+
+# meeting_participants
+
+id | user_id | meeting_id | email | name | invited | attended |          created_at           |          updated_at           
+----+---------+------------+-------+------+---------+----------+-------------------------------+-------------------------------
+ 17 |       4 |         13 |       |      | t       |          | 2026-06-24 17:15:48.327434+00 | 2026-06-24 17:15:48.327434+00
+
+
+# users
+id | login | firstname | lastname  | mail | admin | status | last_login_on | language | ldap_auth_source_id |          created_at           |          updated_at           |     type      | identity_url | first_login | force_password_change | failed_login_count | last_failed_login_on | consented_at | webauthn_id 
+----+-------+-----------+-----------+------+-------+--------+---------------+----------+---------------------+-------------------------------+-------------------------------+---------------+--------------+-------------+-----------------------+--------------------+----------------------+--------------+-------------
+  1 |       |           | Anonymous |      | f     |      1 |               | en       |                     | 2025-10-23 17:56:47.316558+00 | 2025-10-23 17:56:47.316558+00 | AnonymousUser |              | t           | f                     |                  0 |                      |              | 
+
+# rates
+ id | valid_from |   rate    |    type    | project_id | user_id | cost_type_id 
+----+------------+-----------+------------+------------+---------+--------------
+  1 | 2025-11-14 | 4000.0000 | HourlyRate |          5 |       4 |             
+
+
+SELECT * FROM rates;
+ id | valid_from |   rate    |       type        | project_id | user_id | cost_type_id 
+----+------------+-----------+-------------------+------------+---------+--------------
+  1 | 2025-11-14 | 4000.0000 | HourlyRate        |          5 |       4 |             
+  5 | 2025-11-27 |    1.0000 | CostRate          |            |         |            1
+  6 | 2025-11-27 |   35.0000 | CostRate          |            |         |            2
+  7 | 2025-11-27 |    1.0000 | CostRate          |            |         |            3
+  2 | 2025-11-14 |    8.7000 | DefaultHourlyRate |            |         |             
+  4 | 2025-11-24 |   48.2900 | DefaultHourlyRate |            |         |             
+  8 | 2026-03-03 |    7.4300 | DefaultHourlyRate |            |       6 |             
+  9 | 2026-03-03 |   44.2800 | DefaultHourlyRate |            |       8 |             
+ 10 | 2026-03-03 |   59.3700 | DefaultHourlyRate |            |       9 |             
+ 11 | 2026-03-03 |   40.3700 | DefaultHourlyRate |            |      11 |             
+ 12 | 2026-03-03 |   46.2600 | DefaultHourlyRate |            |      12 |             
+ 13 | 2026-03-03 |   28.5000 | DefaultHourlyRate |            |      15 |             
+ 14 | 2026-03-03 |   50.7500 | DefaultHourlyRate |            |      16 |             
+ 15 | 2026-03-03 |   30.8700 | DefaultHourlyRate |            |      19 |             
+ 16 | 2026-03-03 |    4.1300 | DefaultHourlyRate |            |      20 |             
+ 17 | 2026-03-03 |   26.6000 | DefaultHourlyRate |            |      21 |             
+ 18 | 2026-03-03 |   22.0000 | DefaultHourlyRate |            |      22 |             
+  3 | 2026-01-01 |    0.0000 | DefaultHourlyRate |            |       4 |             
+ 19 | 2026-06-25 |    1.0000 | CostRate          |            |         |            4
+
+
+SELECT * FROM cost_types;
+id |     name     |      unit      |   unit_plural   | default | deleted_at 
+----+--------------+----------------+-----------------+---------+------------
+  1 | Computadores | Real           | Reais           | f       | 
+  3 | Periféricos  | Real           | Reais           | f       | 
+  2 | Recargas     | Recarga Padrão | Recargas Padrão | f       | 
+  4 | Taxa Horária | Hora           | Horas           | t       | 
+
+
+SELECT * FROM cost_entries;
+id | user_id | project_id | work_package_id | cost_type_id | units |  spent_on  |          created_at           |          updated_at           | comments | blocked | overridden_costs |  costs   | rate_id | tyear | tmonth | tweek | logged_by_id | entity_type | entity_id 
+----+---------+------------+-----------------+--------------+-------+------------+-------------------------------+-------------------------------+----------+---------+------------------+----------+---------+-------+--------+-------+--------------+-------------+-----------
+  3 |       4 |          9 |                 |            4 |   100 | 2026-06-25 | 2026-06-25 20:00:05.924468+00 | 2026-06-25 20:00:05.924468+00 |          | f       |                  | 100.0000 |      19 |  2026 |      6 |    26 |            4 | WorkPackage |      1162
+  4 |       4 |          9 |                 |            4 |     2 | 2026-06-30 | 2026-06-30 12:12:50.992962+00 | 2026-06-30 12:12:50.992962+00 | Gabriel  | f       |          50.0000 | 100.0000 |      20 |  2026 |      6 |    27 |            4 | WorkPackage |      1164
+
+
